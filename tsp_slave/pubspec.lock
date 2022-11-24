@@ -281,6 +281,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.20"
+  tsp_base:
+    dependency: "direct main"
+    description:
+      path: "../tsp_base"
+      relative: true
+    source: path
+    version: "1.0.0"
   typed_data:
     dependency: transitive
     description:

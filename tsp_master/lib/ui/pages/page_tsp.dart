@@ -1,4 +1,5 @@
 import 'package:destributed_tsp/ui/controllers/controller_tsp.dart';
+import 'package:destributed_tsp/ui/widgets/graph_map.dart';
 import 'package:flutter/material.dart';
 
 import '../painters/paint_graph.dart';
@@ -22,9 +23,9 @@ class TspPage extends StatelessWidget {
         title: const Text('TSP'),
       ),
       body: LayoutBuilder(builder: (context, constraints) {
-        return CustomPaint(
+        return GraphMap(
+          dataset: manager.dataset,
           size: constraints.biggest,
-          painter: GraphPainter(dataset: manager.dataset),
         );
       }),
     );

@@ -6,7 +6,9 @@ version: 1.0.0
 environment:
   sdk: '>=2.18.1 <3.0.0'
 
-# dependencies:
+dependencies:
+  tsp_base:
+    path: ../tsp_base
 #   path: ^1.8.0
 
 dev_dependencies:

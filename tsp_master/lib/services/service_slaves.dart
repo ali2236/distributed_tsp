@@ -70,7 +70,7 @@ class SlavesService with ChangeNotifier {
       final points = chunks[i];
       final socket = sockets[i];
       await Future.forEach(points, (point) async {
-        await Future.microtask(() => socket.add(Message(Events.point, point)));
+        await Future.microtask(() => socket.add(Message(Events.point, point).jsonString));
       });
     });
 
