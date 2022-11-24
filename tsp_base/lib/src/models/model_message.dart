@@ -13,9 +13,8 @@ class Message<T extends Jsonable> implements Jsonable {
   Message(this.event, this.content) : contentType = content.type;
 
   factory Message.fromJson(Map<String, dynamic> json) {
-    final contentType = json['content-type'];
-    final rawContent = json['content'];
-    final jsonContent = jsonDecode(rawContent);
+    final contentType = json['content-type'] as String;
+    final jsonContent = json['content'];
     final content = typeMap[contentType]!(jsonContent);
     return Message(
       json['event'],

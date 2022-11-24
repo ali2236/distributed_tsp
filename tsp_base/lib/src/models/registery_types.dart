@@ -1,3 +1,4 @@
+import 'package:tsp_base/core.dart';
 import 'package:tsp_base/src/models/model_message.dart';
 import 'package:tsp_base/src/models/model_null_content.dart';
 import 'package:tsp_base/src/models/model_slave.dart';
@@ -11,4 +12,5 @@ Map<String, Function(Map<String, dynamic> json)> typeMap = {
   NullContent.Type : (_) => NullContent(),
   Node.Type : Node.fromJson,
   Edge.Type : Edge.fromJson,
+  ListContent.Type : ListContent.fromJson,
 };

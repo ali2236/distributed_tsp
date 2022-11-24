@@ -16,19 +16,21 @@ void main(List<String> arguments) async {
   });
   print('connected');
   final solver = OrderSolver();
-  final inputController = StreamController<Node>();
-  final outputStream = solver.solve(inputController.stream);
+  final inputController = StreamController<List<Node>>();
+  final outputStream = solver.solve(inputController.stream.asBroadcastStream());
+  outputStream.listen((edges) {
+    websocket.add(Message(Events.edges, ListContent(edges)).jsonString);
+  });
   websocket.listen((event) {
     if(event is String){
       final jsonMessage = jsonDecode(event);
       final message = Message.fromJson(jsonMessage);
-      if(message.event == Events.point){
-        final point = message.content as Node;
+      if(message.event == Events.points){
+        final lc = message.content as ListContent;
+        final point = lc.items.cast<Node>();
         inputController.sink.add(point);
       }
     }
   });
-  outputStream.listen((edge) {
-    websocket.add(Message(Events.edge, edge).jsonString);
-  });
+
 }

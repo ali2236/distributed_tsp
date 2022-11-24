@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:destributed_tsp/splitters/splitter.dart';
 import 'package:flutter/material.dart';
 import 'package:tsp_base/core.dart';
-import 'package:utility/utility.dart';
 
 class SlavesService with ChangeNotifier {
   HttpServer? _server;
@@ -12,7 +11,9 @@ class SlavesService with ChangeNotifier {
   final _slaves = <String, WebSocket>{};
 
   bool get started => _server != null;
+
   bool get _acceptsSlaves => _dataset == null;
+
   int get port => _server?.port ?? 2022;
 
   Future<void> start(int port) async {
@@ -49,12 +50,11 @@ class SlavesService with ChangeNotifier {
   }
 
   void _processMessage(Message msg) {
-    if(msg.event == Events.edge && msg.type == Edge.Type){
-      _dataset?.edges.add(msg.content as Edge);
+    if (msg.event == Events.edges) {
+      final lc = msg.content as ListContent;
+      _dataset?.edges.addAll(lc.items.cast<Edge>());
       _dataset?.notifyChange();
-    } /*else if(msg.event == Events.edges){
-      _dataset?.edges.addAll(msg.content as List<Edge>);
-    }*/
+    }
   }
 
   int get salvesCount => _slaves.length;
@@ -69,9 +69,8 @@ class SlavesService with ChangeNotifier {
     Future.forEach(List.generate(salvesCount, (i) => i), (i) async {
       final points = chunks[i];
       final socket = sockets[i];
-      await Future.forEach(points, (point) async {
-        await Future.microtask(() => socket.add(Message(Events.point, point).jsonString));
-      });
+      await Future.microtask(() =>
+          socket.add(Message(Events.points, ListContent(points)).jsonString));
     });
 
     // gather edges

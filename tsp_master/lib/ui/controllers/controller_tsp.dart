@@ -15,12 +15,5 @@ class TspController {
 
   void solve() {
     slaveService.startSolving(dataset, OrderSplitter());
-    for (var i = 0; i < dataset.nodes.length ~/ 2; i++) {
-      final edge = Edge(
-        firstNode: dataset.nodes[i],
-        secondNode: dataset.nodes[i * 2],
-      );
-      dataset.edges.add(edge);
-    }
   }
 }
