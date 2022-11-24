@@ -1,14 +1,15 @@
-import 'package:destributed_tsp/controllers/controller_tsp.dart';
-import 'package:destributed_tsp/pages/page_tsp.dart';
 import 'package:destributed_tsp/services/service_slaves.dart';
+import 'package:destributed_tsp/ui/controllers/controller_tsp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tsp_base/core.dart';
 
-class HomePage extends StatelessWidget {
+import 'page_tsp.dart';
+
+class StartPage extends StatelessWidget {
   final SlavesService slavesService;
 
-  const HomePage({
+  const StartPage({
     Key? key,
     required this.slavesService,
   }) : super(key: key);
@@ -86,7 +87,7 @@ class HomePage extends StatelessWidget {
                             final nodeCount = int.tryParse(nodes.text) ?? 20;
                             final controller = TspController(
                               dataset: Dataset.generate(nodeCount),
-                              systems: systemsCount,
+                              slaveService: slavesService,
                             );
                             Navigator.push(
                               context,

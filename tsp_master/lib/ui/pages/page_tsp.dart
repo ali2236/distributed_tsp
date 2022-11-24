@@ -1,6 +1,7 @@
-import 'package:destributed_tsp/controllers/controller_tsp.dart';
-import 'package:destributed_tsp/painters/paint_graph.dart';
+import 'package:destributed_tsp/ui/controllers/controller_tsp.dart';
 import 'package:flutter/material.dart';
+
+import '../painters/paint_graph.dart';
 
 class TspPage extends StatelessWidget {
   final TspController manager;

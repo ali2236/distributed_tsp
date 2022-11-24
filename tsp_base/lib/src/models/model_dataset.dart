@@ -21,4 +21,16 @@ class Dataset {
       ),
     );
   }
+
+  final List<void Function()> _listeners = [];
+
+  void addListener(void Function() listener) {
+    _listeners.add(listener);
+  }
+
+  void notifyChange() {
+    _listeners.forEach((callback) {
+      callback();
+    });
+  }
 }

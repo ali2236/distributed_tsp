@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:destributed_tsp/extensions/extension_offset.dart';
-import 'package:destributed_tsp/extensions/extension_point.dart';
+import 'package:destributed_tsp/ui/extensions/extension_offset.dart';
+import 'package:destributed_tsp/ui/extensions/extension_point.dart';
 import 'package:flutter/material.dart';
 import 'package:tsp_base/core.dart';
 

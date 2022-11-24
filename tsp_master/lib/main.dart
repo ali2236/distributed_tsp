@@ -1,8 +1,7 @@
 import 'package:destributed_tsp/services/service_slaves.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'pages/page_home.dart';
+import 'ui/pages/page_start.dart';
 
 void main() {
   Get.put(SlavesService());
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(
+      home: StartPage(
         slavesService: Get.find(),
       ),
     );

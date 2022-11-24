@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-import 'package:destributed_tsp/extensions/extension_size.dart';
+import 'package:destributed_tsp/ui/extensions/extension_size.dart';
+
 
 extension OffsetUtils on Offset {
 
