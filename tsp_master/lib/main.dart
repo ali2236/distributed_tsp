@@ -15,6 +15,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.from(
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: Colors.purple,
+        ),
+        useMaterial3: true,
+      ).copyWith(
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ),
       home: StartPage(
         slavesService: Get.find(),
       ),

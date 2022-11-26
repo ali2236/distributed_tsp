@@ -11,3 +11,5 @@ export 'src/models/enum_events.dart';
 export 'src/models/interface_solver.dart';
 
 export 'src/extensions/extension_jsonable.dart';
+
+export 'src/algorithms/group_nearest_n.dart';
