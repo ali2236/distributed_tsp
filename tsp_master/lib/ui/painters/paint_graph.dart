@@ -6,15 +6,20 @@ import 'package:tsp_base/core.dart';
 
 class GraphPainter extends CustomPainter {
   final Dataset dataset;
+  final Color dotColor, lineColor;
 
-  const GraphPainter({required this.dataset});
+  const GraphPainter({
+    required this.dataset,
+    required this.dotColor,
+    required this.lineColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final n = dataset.nodes.length;
-    final nodePaint = Paint()..color = Colors.blue;
+    final nodePaint = Paint()..color = dotColor;
     final edgePaint = Paint()
-      ..color = Colors.black
+      ..color = lineColor
       ..strokeWidth = (0.005 * size.width) / log(n);
 
     // edges

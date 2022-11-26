@@ -1,10 +1,16 @@
+import 'package:destributed_tsp/connectors/connector.dart';
+import 'package:destributed_tsp/connectors/connector_order.dart';
 import 'package:destributed_tsp/services/service_slaves.dart';
+import 'package:destributed_tsp/splitters/splitter.dart';
+import 'package:destributed_tsp/splitters/splitter_order.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'ui/pages/page_start.dart';
 
 void main() {
   Get.put(SlavesService());
+  Get.put<Splitter>(const OrderSplitter());
+  Get.put<Connector>(const OrderConnector());
   runApp(const MyApp());
 }
 

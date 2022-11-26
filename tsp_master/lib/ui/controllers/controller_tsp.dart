@@ -1,8 +1,7 @@
-
-
 import 'package:destributed_tsp/services/service_slaves.dart';
-import 'package:destributed_tsp/splitters/splitter_order.dart';
+import 'package:get/get.dart';
 import 'package:tsp_base/core.dart';
+
 
 class TspController {
   final Dataset dataset;
@@ -14,6 +13,10 @@ class TspController {
   });
 
   void solve() {
-    slaveService.startSolving(dataset, OrderSplitter());
+    slaveService.startSolving(
+      dataset,
+      Get.find(),
+      Get.find(),
+    );
   }
 }

@@ -27,4 +27,15 @@ class Node implements Jsonable {
   double distanceFrom(Node node) {
     return sqrt(pow(x - node.x, 2) + pow(y - node.y, 2));
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Node &&
+          runtimeType == other.runtimeType &&
+          x == other.x &&
+          y == other.y;
+
+  @override
+  int get hashCode => x.hashCode ^ y.hashCode;
 }

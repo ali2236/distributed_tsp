@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,9 +6,13 @@ import 'package:destributed_tsp/splitters/splitter.dart';
 import 'package:flutter/material.dart';
 import 'package:tsp_base/core.dart';
 
+import '../connectors/connector.dart';
+
 class SlavesService with ChangeNotifier {
   HttpServer? _server;
   Dataset? _dataset;
+  Completer? _edgeCollection;
+  var _done = 0;
   final _slaves = <String, WebSocket>{};
 
   bool get started => _server != null;
@@ -39,6 +44,7 @@ class SlavesService with ChangeNotifier {
     _server = null;
     _slaves.clear();
     _dataset = null;
+    _done = 0;
     notifyListeners();
   }
 
@@ -54,17 +60,26 @@ class SlavesService with ChangeNotifier {
       final lc = msg.content as ListContent;
       _dataset?.edges.addAll(lc.items.cast<Edge>());
       _dataset?.notifyChange();
+    } else if (msg.event == Events.done) {
+      _done++;
+      // check done
+      if (_done == salvesCount) {
+        _edgeCollection?.complete();
+      }
     }
   }
 
   int get salvesCount => _slaves.length;
 
-  void startSolving(Dataset dataset, Splitter splitter) {
+  void startSolving(
+      Dataset dataset, Splitter splitter, Connector connector) async {
     _dataset = dataset;
+    _done = 0;
     // divide points
     final chunks = splitter.split(dataset.nodes, salvesCount);
 
     // stream points to each slave
+    _edgeCollection = Completer();
     final sockets = _slaves.values.toList();
     Future.forEach(List.generate(salvesCount, (i) => i), (i) async {
       final points = chunks[i];
@@ -75,5 +90,13 @@ class SlavesService with ChangeNotifier {
 
     // gather edges
     // done in [_onEvent]->[_processMessage]
+    await _edgeCollection!.future;
+
+    // connect
+    final connectors = connector.connect(dataset.edges.toSet());
+    dataset.edges.addAll(connectors);
+    dataset.notifyChange();
+
+    // finished!
   }
 }

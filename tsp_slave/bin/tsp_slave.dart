@@ -17,7 +17,10 @@ void main(List<String> arguments) async {
   print('connected');
   final solver = OrderSolver();
   final inputController = StreamController<List<Node>>();
-  final outputStream = solver.solve(inputController.stream.asBroadcastStream());
+  final outputStream = solver.solve(inputController.stream.asBroadcastStream(), (){
+    websocket.add(Message(Events.done, NullContent()).jsonString);
+    print('done');
+  });
   outputStream.listen((edges) {
     websocket.add(Message(Events.edges, ListContent(edges)).jsonString);
   });

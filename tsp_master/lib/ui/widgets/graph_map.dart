@@ -30,7 +30,11 @@ class _GraphMapState extends State<GraphMap> {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: widget.size,
-      painter: GraphPainter(dataset: widget.dataset),
+      painter: GraphPainter(
+        dataset: widget.dataset,
+        dotColor: Theme.of(context).colorScheme.primary,
+        lineColor: Theme.of(context).colorScheme.onBackground,
+      ),
     );
   }
 }
