@@ -4,4 +4,6 @@ abstract class Events {
   static const points = 'points';
   static const edges = 'edges';
   static const done = 'done';
+  static const solver = 'solver';
+  static const stop = 'stop';
 }

@@ -1,5 +1,6 @@
-import 'package:destributed_tsp/connectors/connector.dart';
 import 'package:tsp_base/src/models/model_edge.dart';
+
+import 'connector.dart';
 
 class OrderConnector extends Connector {
 

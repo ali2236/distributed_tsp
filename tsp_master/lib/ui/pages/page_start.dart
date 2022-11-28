@@ -1,8 +1,4 @@
-import 'package:destributed_tsp/connectors/connector.dart';
-import 'package:destributed_tsp/connectors/connector_order.dart';
 import 'package:destributed_tsp/services/service_slaves.dart';
-import 'package:destributed_tsp/splitters/splitter.dart';
-import 'package:destributed_tsp/splitters/splitter_order.dart';
 import 'package:destributed_tsp/ui/controllers/controller_tsp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -95,13 +91,11 @@ class StartPage extends StatelessWidget {
                                   Get.put<Splitter>(t);
                                 }
                               },
-                              items: const [
+                              items: [
+                                for (var e in splitters.entries)
                                 DropdownMenuItem(
-                                  value: OrderSplitter(),
-                                  child: Text('By Order'),
-                                ),
-                                DropdownMenuItem(
-                                  child: Text('Group Nearest'),
+                                  value: splitterFactories[e.value]!(),
+                                  child: Text(e.key),
                                 ),
                               ],
                             ),
@@ -134,17 +128,15 @@ class StartPage extends StatelessWidget {
                               value: Get.find<Connector>(),
                               onChanged: (t) {
                                 if (t != null) {
-                                  Get.put<Connector>(OrderConnector());
+                                  Get.put<Connector>(t);
                                 }
                               },
-                              items: const [
-                                DropdownMenuItem(
-                                  child: Text('By Order'),
-                                  value: OrderConnector(),
-                                ),
-                                DropdownMenuItem(
-                                  child: Text('Nearest Node'),
-                                ),
+                              items: [
+                                for (var e in connectors.entries)
+                                  DropdownMenuItem(
+                                    value: connectorFactories[e.value]!(),
+                                    child: Text(e.key),
+                                  ),
                               ],
                             ),
                           ),
@@ -162,7 +154,6 @@ class StartPage extends StatelessWidget {
                                     slavesService.salvesCount == 0
                                 ? null
                                 : () {
-                                    final systemsCount = slavesService.salvesCount;
                                     final nodeCount =
                                         int.tryParse(nodes.text) ?? 20;
                                     final controller = TspController(

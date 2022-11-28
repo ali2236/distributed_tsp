@@ -16,7 +16,12 @@ class TspController {
     slaveService.startSolving(
       dataset,
       Get.find(),
+      Get.find(tag: 'solver'),
       Get.find(),
     );
+  }
+
+  void cancel(){
+    slaveService.stop();
   }
 }

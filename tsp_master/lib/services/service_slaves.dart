@@ -2,11 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:destributed_tsp/splitters/splitter.dart';
 import 'package:flutter/material.dart';
 import 'package:tsp_base/core.dart';
-
-import '../connectors/connector.dart';
 
 class SlavesService with ChangeNotifier {
   HttpServer? _server;
@@ -39,7 +36,7 @@ class SlavesService with ChangeNotifier {
     notifyListeners();
   }
 
-  stop() {
+  void stop() {
     _server?.close(force: true);
     _server = null;
     _slaves.clear();
@@ -71,10 +68,17 @@ class SlavesService with ChangeNotifier {
 
   int get salvesCount => _slaves.length;
 
-  void startSolving(
-      Dataset dataset, Splitter splitter, Connector connector) async {
+  void startSolving(Dataset dataset, Splitter splitter, String solverId,
+      Connector connector) async {
     _dataset = dataset;
     _done = 0;
+    // set solver method
+    for (var ws in _slaves.values) {
+      ws.add(Message(Events.solver, StringContent(solverId)).jsonString);
+    }
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
     // divide points
     final chunks = splitter.split(dataset.nodes, salvesCount);
 
@@ -84,8 +88,11 @@ class SlavesService with ChangeNotifier {
     Future.forEach(List.generate(salvesCount, (i) => i), (i) async {
       final points = chunks[i];
       final socket = sockets[i];
-      await Future.microtask(() =>
-          socket.add(Message(Events.points, ListContent(points)).jsonString));
+      await Future.microtask(
+        () => socket.add(
+          Message(Events.points, ListContent(points)).jsonString,
+        ),
+      );
     });
 
     // gather edges
