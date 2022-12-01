@@ -18,6 +18,8 @@ class Edge implements Jsonable {
     );
   }
 
+  double get length => firstNode.distanceFrom(secondNode).abs();
+
   @override
   int get hashCode => firstNode.hashCode ^ secondNode.hashCode;
 

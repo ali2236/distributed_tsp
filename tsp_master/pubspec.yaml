@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  get: ^4.6.5
 
   # pure dart
   tsp_base:

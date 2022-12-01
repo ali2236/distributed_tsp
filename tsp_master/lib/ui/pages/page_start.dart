@@ -2,12 +2,11 @@ import 'package:destributed_tsp/services/service_slaves.dart';
 import 'package:destributed_tsp/ui/controllers/controller_tsp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:tsp_base/core.dart';
 
 import 'page_tsp.dart';
 
-class StartPage extends StatelessWidget {
+class StartPage extends StatefulWidget {
   final SlavesService slavesService;
 
   const StartPage({
@@ -16,9 +15,24 @@ class StartPage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StartPage> createState() => _StartPageState();
+}
+
+class _StartPageState extends State<StartPage> {
+  late final TextEditingController port;
+  final nodes = TextEditingController(text: '200');
+  var splitter = splitterFactories.values.first();
+  var solverId = solvers.keys.first;
+  var connector = connectorFactories.values.first();
+
+  @override
+  void initState() {
+    super.initState();
+    port = TextEditingController(text: widget.slavesService.port.toString());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final port = TextEditingController(text: slavesService.port.toString());
-    final nodes = TextEditingController(text: '200');
     return Scaffold(
       appBar: AppBar(
         title: const Text('TSP Master Config'),
@@ -31,7 +45,7 @@ class StartPage extends StatelessWidget {
               Row(children: const [Spacer()]),
               const SizedBox(height: 64),
               AnimatedBuilder(
-                  animation: slavesService,
+                  animation: widget.slavesService,
                   builder: (context, _) {
                     return SizedBox(
                       width: 400,
@@ -49,21 +63,21 @@ class StartPage extends StatelessWidget {
                                   decoration: InputDecoration(
                                       label: const Text('Socket Port'),
                                       helperText: 'Number of Connected Slaves:'
-                                          ' ${slavesService.salvesCount}'),
+                                          ' ${widget.slavesService.salvesCount}'),
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              if (!slavesService.started)
+                              if (!widget.slavesService.started)
                                 ElevatedButton(
                                   child: const Text('Start Socket'),
-                                  onPressed: () => slavesService.start(
+                                  onPressed: () => widget.slavesService.start(
                                       int.tryParse(port.text) ??
-                                          slavesService.port),
+                                          widget.slavesService.port),
                                 ),
-                              if (slavesService.started)
+                              if (widget.slavesService.started)
                                 ElevatedButton(
                                   child: const Text('Stop Socket'),
-                                  onPressed: () => slavesService.stop(),
+                                  onPressed: () => widget.slavesService.stop(),
                                 ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -72,7 +86,7 @@ class StartPage extends StatelessWidget {
                                   height: 16,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: slavesService.started
+                                    color: widget.slavesService.started
                                         ? Colors.green
                                         : Colors.red,
                                   ),
@@ -85,18 +99,20 @@ class StartPage extends StatelessWidget {
                             title: const Text('Splitter'),
                             subtitle: const Text('Node Splitting Algorithm'),
                             trailing: DropdownButton<Splitter>(
-                              value: Get.find<Splitter>(),
+                              value: splitter,
                               onChanged: (t) {
                                 if (t != null) {
-                                  Get.put<Splitter>(t);
+                                  setState(() {
+                                    splitter = t;
+                                  });
                                 }
                               },
                               items: [
                                 for (var e in splitters.entries)
-                                DropdownMenuItem(
-                                  value: splitterFactories[e.value]!(),
-                                  child: Text(e.key),
-                                ),
+                                  DropdownMenuItem(
+                                    value: splitterFactories[e.value]!(),
+                                    child: Text(e.key),
+                                  ),
                               ],
                             ),
                           ),
@@ -104,19 +120,21 @@ class StartPage extends StatelessWidget {
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Solver'),
                             subtitle: const Text('Slave TSP Algorithm'),
-                            trailing: DropdownButton(
-                              value: 'order',
+                            trailing: DropdownButton<String>(
+                              value: solverId,
                               onChanged: (t) {
-                                if (t != null) {}
+                                if (t != null) {
+                                  setState(() {
+                                    solverId = t;
+                                  });
+                                }
                               },
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'order',
-                                  child: Text('By Order'),
-                                ),
-                                DropdownMenuItem(
-                                  child: Text('Greedy'),
-                                ),
+                              items: [
+                                for (var e in solvers.entries)
+                                  DropdownMenuItem(
+                                    value: e.key,
+                                    child: Text(e.key),
+                                  ),
                               ],
                             ),
                           ),
@@ -125,10 +143,12 @@ class StartPage extends StatelessWidget {
                             title: const Text('Connector'),
                             subtitle: const Text('TSP Connector Algorithm'),
                             trailing: DropdownButton<Connector>(
-                              value: Get.find<Connector>(),
+                              value: connector,
                               onChanged: (t) {
                                 if (t != null) {
-                                  Get.put<Connector>(t);
+                                  setState(() {
+                                    connector = t;
+                                  });
                                 }
                               },
                               items: [
@@ -150,15 +170,18 @@ class StartPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton(
-                            onPressed: !slavesService.started ||
-                                    slavesService.salvesCount == 0
+                            onPressed: !widget.slavesService.started ||
+                                    widget.slavesService.salvesCount == 0
                                 ? null
                                 : () {
                                     final nodeCount =
                                         int.tryParse(nodes.text) ?? 20;
                                     final controller = TspController(
                                       dataset: Dataset.generate(nodeCount),
-                                      slaveService: slavesService,
+                                      slaveService: widget.slavesService,
+                                      splitter: splitter,
+                                      solverId: solverId,
+                                      connector: connector,
                                     );
                                     Navigator.push(
                                       context,

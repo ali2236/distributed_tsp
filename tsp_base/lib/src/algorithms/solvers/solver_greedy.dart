@@ -9,8 +9,8 @@ class GreedySolver implements Solver {
 
   @override
   Stream<List<Edge>> solve(List<Node> nodes, void Function() onFinish) async* {
-    var start = nodes.removeAt(0);
-    var v = nodes.sublist(1);
+    var v = List.of(nodes);
+    var start = v.removeAt(0);
     var next = findNearestNode(v, start);
     v.remove(next);
     yield [Edge(firstNode: start, secondNode: next)];
@@ -20,6 +20,7 @@ class GreedySolver implements Solver {
       v.remove(next);
       yield [Edge(firstNode: start, secondNode: next)];
     }
+    onFinish();
   }
 
 }

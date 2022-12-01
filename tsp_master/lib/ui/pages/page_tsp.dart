@@ -23,9 +23,12 @@ class TspPage extends StatelessWidget {
         title: const Text('TSP'),
       ),
       body: LayoutBuilder(builder: (context, constraints) {
-        return GraphMap(
-          dataset: manager.dataset,
-          size: constraints.biggest,
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GraphMap(
+            dataset: manager.dataset,
+            size: constraints.biggest,
+          ),
         );
       }),
     );

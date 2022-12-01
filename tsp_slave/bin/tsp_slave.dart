@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:tsp_base/core.dart';
 import 'package:tsp_slave/services/service_master.dart';
 
 void main(List<String> arguments) async {
@@ -8,11 +7,6 @@ void main(List<String> arguments) async {
   stdout.write('Enter Master Url(default=$defaultUrl):');
   final input = stdin.readLineSync();
   final url = (input?.isNotEmpty ?? false) ? input : defaultUrl;
-  final master = await MasterService.create(url!);
+  await MasterService.create(url!);
   print('connected');
-
-
-
-
-
 }
