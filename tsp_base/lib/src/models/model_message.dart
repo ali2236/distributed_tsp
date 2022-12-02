@@ -10,6 +10,8 @@ class Message<T extends Jsonable> implements Jsonable {
   final String contentType;
   final T content;
 
+  String sender = 'Unknown';
+
   Message(this.event, this.content) : contentType = content.type;
 
   factory Message.fromJson(Map<String, dynamic> json) {

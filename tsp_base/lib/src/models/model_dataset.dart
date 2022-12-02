@@ -5,7 +5,14 @@ import 'model_node.dart';
 
 class Dataset {
   final List<Node> nodes;
-  final List<Edge> edges = [];
+  final Map<String, List<Edge>> _edgePartitions = {};
+
+  List<List<Edge>> get edgePartition => _edgePartitions.values.toList();
+
+  List<Edge> get edges => _edgePartitions.isNotEmpty
+      ? _edgePartitions.values
+          .reduce((acc, edges) => acc.followedBy(edges).toList())
+      : [];
 
   Dataset(this.nodes);
 
@@ -20,6 +27,12 @@ class Dataset {
         ),
       ),
     );
+  }
+
+  void putEdges(Iterable<Edge> edges, String partition) {
+    final partitionEdges = _edgePartitions[partition] ?? <Edge>[];
+    partitionEdges.addAll(edges);
+    _edgePartitions.putIfAbsent(partition, () => partitionEdges);
   }
 
   final List<void Function()> _listeners = [];

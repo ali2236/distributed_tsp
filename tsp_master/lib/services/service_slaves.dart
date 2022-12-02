@@ -30,7 +30,13 @@ class SlavesService with ChangeNotifier {
       final socket = await WebSocketTransformer.upgrade(req);
       final slaveId = req.headers.value('id')!;
       _slaves.addAll({slaveId: socket});
-      socket.listen(_onEvent);
+      socket.listen((event){
+        if (event is String) {
+          final message = Message.fromJson(jsonDecode(event));
+          message.sender = slaveId;
+          _processMessage(message);
+        }
+      });
       notifyListeners();
     });
     notifyListeners();
@@ -45,17 +51,11 @@ class SlavesService with ChangeNotifier {
     notifyListeners();
   }
 
-  void _onEvent(event) {
-    if (event is String) {
-      final message = Message.fromJson(jsonDecode(event));
-      _processMessage(message);
-    }
-  }
-
   void _processMessage(Message msg) {
     if (msg.event == Events.edges) {
       final lc = msg.content as ListContent;
-      _dataset?.edges.addAll(lc.items.cast<Edge>());
+      final edges = lc.items.cast<Edge>();
+      _dataset?.putEdges(edges, msg.sender);
       _dataset?.notifyChange();
     } else if (msg.event == Events.done) {
       _done++;
@@ -96,12 +96,12 @@ class SlavesService with ChangeNotifier {
     });
 
     // gather edges
-    // done in [_onEvent]->[_processMessage]
+    // done in [_processMessage]
     await _edgeCollection!.future;
 
     // connect
-    final connectors = connector.connect(dataset.edges.toSet());
-    dataset.edges.addAll(connectors);
+    final connectors = connector.connect(dataset);
+    dataset.putEdges(connectors, 'connectors');
     dataset.notifyChange();
 
     // finished!

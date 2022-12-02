@@ -23,5 +23,5 @@ abstract class Connector {
     return nodes;
   }
 
-  Set<Edge> connect(Set<Edge> edges);
+  Set<Edge> connect(Dataset dataset);
 }

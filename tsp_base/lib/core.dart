@@ -7,6 +7,7 @@ export 'src/models/model_message.dart';
 export 'src/models/model_null_content.dart';
 export 'src/models/model_list_content.dart';
 export 'src/models/model_string_content.dart';
+export 'src/models/model_edge_event.dart';
 
 export 'src/models/enum_events.dart';
 

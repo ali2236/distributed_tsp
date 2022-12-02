@@ -1,3 +1,4 @@
+import 'package:tsp_base/core.dart';
 import 'package:tsp_base/src/algorithms/connectors/connector.dart';
 import 'package:tsp_base/src/models/model_edge.dart';
 
@@ -7,14 +8,23 @@ class GreedyConnector extends Connector {
   const GreedyConnector();
 
   @override
-  Set<Edge> connect(Set<Edge> edges) {
-    final nodes = findEdgeNodes(edges).toList();
+  Set<Edge> connect(Dataset dataset) {
+    final partitionEdgeNodes = dataset.edgePartition
+        .map(
+          (partition) => findEdgeNodes(partition.toSet()).toList(),
+        )
+        .toList();
     final connections = <Edge>{};
-
-    while(nodes.isNotEmpty){
-      var first = nodes.removeAt(0);
+    for (var i = 0; i < partitionEdgeNodes.length; i++) {
+      final partition = partitionEdgeNodes[i];
+      final first = partition.removeAt(0);
+      final otherPartitions = List.of(partitionEdgeNodes)..removeAt(i);
+      final nodes = otherPartitions
+          .reduce((acc, nodes) => acc.followedBy(nodes).toList());
       var second = findNearestNode(nodes, first);
-      nodes.remove(second);
+      final secondPartition = partitionEdgeNodes
+          .firstWhere((partition) => partition.contains(second));
+      secondPartition.remove(second);
       connections.add(Edge(firstNode: first, secondNode: second));
     }
     return connections;
