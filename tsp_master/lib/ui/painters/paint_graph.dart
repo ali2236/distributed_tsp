@@ -23,7 +23,14 @@ class GraphPainter extends CustomPainter {
       ..strokeWidth = (0.005 * size.width) / log(n);
 
     // edges
-    for (var edgePartition in dataset.edgePartition) {
+    for(var edge in dataset.edges){
+      canvas.drawLine(
+        edge.firstNode.offset.scaleBySize(size),
+        edge.secondNode.offset.scaleBySize(size),
+        edgePaint
+      );
+    }
+    /*for (var edgePartition in dataset.edgePartition) {
       for(var edge in edgePartition){
         canvas.drawLine(
           edge.firstNode.offset.scaleBySize(size),
@@ -31,7 +38,7 @@ class GraphPainter extends CustomPainter {
           edgePaint,
         );
       }
-    }
+    }*/
 
     // nodes
     for (var node in dataset.nodes) {

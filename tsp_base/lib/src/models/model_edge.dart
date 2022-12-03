@@ -1,8 +1,9 @@
+import 'package:tsp_base/core.dart';
 import 'package:tsp_base/src/models/interface_jsonable.dart';
 
 import 'model_node.dart';
 
-class Edge implements Jsonable {
+class Edge implements Jsonable, Comparable<Edge> {
   static const Type = 'edge';
   final Node firstNode, secondNode;
 
@@ -43,4 +44,9 @@ class Edge implements Jsonable {
 
   @override
   String get type => Edge.Type;
+
+  @override
+  int compareTo(Edge other) {
+    return length.compareTo(other.length);
+  }
 }
