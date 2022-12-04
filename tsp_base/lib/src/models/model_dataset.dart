@@ -35,6 +35,18 @@ class Dataset {
     _edgePartitions.putIfAbsent(partition, () => partitionEdges);
   }
 
+  void removeEdges(Iterable<Edge> edges, String partition) {
+    final partitionEdges = _edgePartitions[partition] ?? <Edge>[];
+    edges.forEach(partitionEdges.remove);
+    _edgePartitions.putIfAbsent(partition, () => partitionEdges);
+  }
+
+  void clearEdges(String partition) {
+    final partitionEdges = _edgePartitions[partition] ?? <Edge>[];
+    partitionEdges.clear();
+    _edgePartitions.putIfAbsent(partition, () => partitionEdges);
+  }
+
   final List<void Function()> _listeners = [];
 
   void addListener(void Function() listener) {

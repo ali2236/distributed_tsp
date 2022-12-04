@@ -1,13 +1,14 @@
 import 'package:tsp_base/src/algorithms/solvers/solver.dart';
 import 'package:tsp_base/src/models/extensions/extension_nodes.dart';
 import 'package:tsp_base/src/models/model_edge.dart';
+import 'package:tsp_base/src/models/model_edge_event.dart';
 import 'package:tsp_base/src/models/model_node.dart';
 
 class GreedySolver implements Solver {
   const GreedySolver();
 
   @override
-  Stream<List<Edge>> solve(List<Node> nodes, void Function() onFinish) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes,  Stream<EdgeEvent> sync) async* {
     final tsp = nodes
         .map((n1) => nodes
             .map((n2) => Edge(firstNode: n1, secondNode: n2).length)
@@ -53,9 +54,12 @@ class GreedySolver implements Solver {
       }
     }
 
-    yield route.map((i) => nodes[i-1]).toList().path.toList();
+    yield EdgeEvent(
+      edges: route.map((i) => nodes[i - 1]).toList().path.toList(),
+      event: EdgeEvent.event_add,
+    );
 
-    onFinish();
+    yield EdgeEvent.done();
   }
 
 /*  @override

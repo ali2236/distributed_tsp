@@ -30,7 +30,7 @@ class SlavesService with ChangeNotifier {
       final socket = await WebSocketTransformer.upgrade(req);
       final slaveId = req.headers.value('id')!;
       _slaves.addAll({slaveId: socket});
-      socket.listen((event){
+      socket.listen((event) {
         if (event is String) {
           final message = Message.fromJson(jsonDecode(event));
           message.sender = slaveId;
@@ -51,24 +51,31 @@ class SlavesService with ChangeNotifier {
     notifyListeners();
   }
 
-  void restart(){
+  void restart() {
     _dataset = null;
     _done = 0;
     notifyListeners();
   }
 
   void _processMessage(Message msg) {
-    if (msg.event == Events.edges) {
-      final lc = msg.content as ListContent;
-      final edges = lc.items.cast<Edge>();
-      _dataset?.putEdges(edges, msg.sender);
-      _dataset?.notifyChange();
-    } else if (msg.event == Events.done) {
-      _done++;
-      // check done
-      if (_done == salvesCount) {
-        _edgeCollection?.complete();
+    if (msg.event == Events.edgeEvent) {
+      final ee = msg.content as EdgeEvent;
+      final edges = ee.edges;
+      if (ee.event == EdgeEvent.event_add) {
+        _dataset?.putEdges(edges, msg.sender);
+      } else if (ee.event == EdgeEvent.event_remove) {
+        _dataset?.removeEdges(edges, msg.sender);
+      } else if (ee.event == EdgeEvent.event_replace) {
+        _dataset?.clearEdges(msg.sender);
+        _dataset?.putEdges(edges, msg.sender);
+      } else if (ee.event == EdgeEvent.event_done) {
+        _done++;
+        // check done
+        if (_done == salvesCount) {
+          _edgeCollection?.complete();
+        }
       }
+      _dataset?.notifyChange();
     }
   }
 

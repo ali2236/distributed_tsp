@@ -3,26 +3,33 @@ import 'package:tsp_base/src/models/model_edge.dart';
 
 class EdgeEvent implements Jsonable {
   static const Type = 'edge-event';
-  final Edge edge;
-  final bool remove;
+  static const event_add = 'add-edges';
+  static const event_remove = 'remove-edges';
+  static const event_replace = 'replace-edges';
+  static const event_done = 'done';
+  final List<Edge> edges;
+  final String event;
 
   const EdgeEvent({
-    required this.edge,
-    required this.remove,
+    required this.edges,
+    required this.event,
   });
+
+  const EdgeEvent.done()
+      : edges = const [],
+        event = EdgeEvent.event_done;
 
   factory EdgeEvent.fromJson(Map<String, dynamic> json) {
     return EdgeEvent(
-      edge: Edge.fromJson(json['edge']),
-      remove: json['remove']
-    );
+        edges: (json['edges'] as List).map((e) => Edge.fromJson(e)).toList(),
+        event: json['event']);
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'edge': edge.toJson(),
-      'remove' : remove,
+      'edges': edges.map((e) => e.toJson()).toList(),
+      'event': event,
     };
   }
 

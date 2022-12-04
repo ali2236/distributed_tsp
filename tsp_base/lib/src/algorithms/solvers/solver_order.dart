@@ -7,15 +7,15 @@ class OrderSolver implements Solver {
   const OrderSolver();
 
   @override
-  Stream<List<Edge>> solve(
+  Stream<EdgeEvent> solve(
     List<Node> nodes,
-    void Function() onFinish,
+      Stream<EdgeEvent> sync,
   ) async* {
     for (var i = 0; i < nodes.length - 1; i++) {
       final edge = Edge(firstNode: nodes[i], secondNode: nodes[i + 1]);
-      yield [edge];
+      yield EdgeEvent(edges: [edge], event: EdgeEvent.event_add);
       // await Future.delayed(Duration(milliseconds: 100));
     }
-    onFinish();
+    yield EdgeEvent.done();
   }
 }

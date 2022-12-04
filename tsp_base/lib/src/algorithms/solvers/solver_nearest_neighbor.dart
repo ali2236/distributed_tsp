@@ -1,26 +1,31 @@
 import 'package:tsp_base/src/algorithms/find_nearest_node.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver.dart';
 import 'package:tsp_base/src/models/model_edge.dart';
+import 'package:tsp_base/src/models/model_edge_event.dart';
 import 'package:tsp_base/src/models/model_node.dart';
 
 class NearestNeighbourSolver implements Solver {
-
   const NearestNeighbourSolver();
 
   @override
-  Stream<List<Edge>> solve(List<Node> nodes, void Function() onFinish) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes,  Stream<EdgeEvent> sync) async* {
     var v = List.of(nodes);
     var start = v.removeAt(0);
     var next = findNearestNode(v, start);
     v.remove(next);
-    yield [Edge(firstNode: start, secondNode: next)];
-    while(v.isNotEmpty){
+    yield EdgeEvent(
+      edges: [Edge(firstNode: start, secondNode: next)],
+      event: EdgeEvent.event_add,
+    );
+    while (v.isNotEmpty) {
       start = next;
       next = findNearestNode(v, start);
       v.remove(next);
-      yield [Edge(firstNode: start, secondNode: next)];
+      yield EdgeEvent(
+        edges: [Edge(firstNode: start, secondNode: next)],
+        event: EdgeEvent.event_add,
+      );
     }
-    onFinish();
+    yield EdgeEvent.done();
   }
-
 }

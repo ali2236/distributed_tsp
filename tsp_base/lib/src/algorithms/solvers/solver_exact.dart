@@ -4,9 +4,12 @@ class ExactSolver extends Solver {
   const ExactSolver();
 
   @override
-  Stream<List<Edge>> solve(List<Node> nodes, void Function() onFinish) async* {
-    yield _Tour.bestTour(nodes.toSet()).edges;
-    onFinish();
+  Stream<EdgeEvent> solve(List<Node> nodes, Stream<EdgeEvent> sync) async* {
+    yield EdgeEvent(
+      edges: _Tour.bestTour(nodes.toSet()).edges,
+      event: EdgeEvent.event_add,
+    );
+    yield EdgeEvent.done();
   }
 }
 

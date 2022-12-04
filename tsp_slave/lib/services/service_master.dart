@@ -31,11 +31,8 @@ class MasterService {
     if (msg.event == Events.points) {
       final lc = msg.content as ListContent;
       final point = lc.items.cast<Node>();
-      _solver?.solve(point, () {
-        _socket.add(Message(Events.done, NullContent()).jsonString);
-        print('done');
-      }).listen((edges) {
-        _socket.add(Message(Events.edges, ListContent(edges)).jsonString);
+      _solver?.solve(point, Stream.empty()).listen((edgeEvent) {
+        _socket.add(Message(Events.edgeEvent, edgeEvent).jsonString);
       });
     } else if (msg.event == Events.solver) {
       final name = (msg.content as StringContent).text;

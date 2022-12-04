@@ -11,4 +11,7 @@ extension Path on List<Node> {
       yield edge;
     }
   }
+
+  double get pathLength =>
+      path.map((e) => e.length).reduce((acc, val) => acc + val);
 }
