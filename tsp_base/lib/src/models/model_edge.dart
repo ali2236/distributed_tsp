@@ -28,8 +28,8 @@ class Edge implements Jsonable, Comparable<Edge> {
   bool operator ==(Object other) {
     return super == other ||
         other is Edge &&
-            (firstNode == other.firstNode || firstNode == other.secondNode) &&
-            (secondNode == other.secondNode || secondNode == other.secondNode);
+            (firstNode == other.firstNode || secondNode == other.secondNode) &&
+            (secondNode == other.firstNode || firstNode == other.secondNode);
   }
 
   @override

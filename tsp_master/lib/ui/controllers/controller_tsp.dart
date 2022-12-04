@@ -26,6 +26,6 @@ class TspController {
   }
 
   void cancel() {
-    slaveService.stop();
+    slaveService.restart();
   }
 }

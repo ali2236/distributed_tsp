@@ -51,6 +51,12 @@ class SlavesService with ChangeNotifier {
     notifyListeners();
   }
 
+  void restart(){
+    _dataset = null;
+    _done = 0;
+    notifyListeners();
+  }
+
   void _processMessage(Message msg) {
     if (msg.event == Events.edges) {
       final lc = msg.content as ListContent;
