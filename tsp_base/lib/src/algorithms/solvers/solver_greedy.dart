@@ -8,7 +8,7 @@ class GreedySolver implements Solver {
   const GreedySolver();
 
   @override
-  Stream<EdgeEvent> solve(List<Node> nodes,  Stream<EdgeEvent> sync) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes) async* {
     final tsp = nodes
         .map((n1) => nodes
             .map((n2) => Edge(firstNode: n1, secondNode: n2).length)

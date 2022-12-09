@@ -8,8 +8,7 @@ class OrderSolver implements Solver {
 
   @override
   Stream<EdgeEvent> solve(
-    List<Node> nodes,
-      Stream<EdgeEvent> sync,
+    List<Node> nodes
   ) async* {
     for (var i = 0; i < nodes.length - 1; i++) {
       final edge = Edge(firstNode: nodes[i], secondNode: nodes[i + 1]);

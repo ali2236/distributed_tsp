@@ -5,8 +5,8 @@ class NonConnector extends Connector {
   const NonConnector();
 
   @override
-  Set<Edge> connect(Dataset dataset) {
-    return {};
+  void connect(Dataset dataset) {
+
   }
 
 }

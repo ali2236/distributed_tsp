@@ -8,7 +8,7 @@ class NearestNeighbourSolver implements Solver {
   const NearestNeighbourSolver();
 
   @override
-  Stream<EdgeEvent> solve(List<Node> nodes,  Stream<EdgeEvent> sync) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes) async* {
     var v = List.of(nodes);
     var start = v.removeAt(0);
     var next = findNearestNode(v, start);

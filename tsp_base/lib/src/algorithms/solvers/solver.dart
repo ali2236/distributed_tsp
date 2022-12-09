@@ -5,5 +5,5 @@ import '../../models/model_node.dart';
 abstract class Solver {
   const Solver();
 
-  Stream<EdgeEvent> solve(List<Node> nodes, Stream<EdgeEvent> sync);
+  Stream<EdgeEvent> solve(List<Node> nodes);
 }

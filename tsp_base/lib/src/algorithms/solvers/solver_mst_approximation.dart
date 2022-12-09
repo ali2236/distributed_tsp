@@ -4,7 +4,7 @@ import 'package:tsp_base/src/models/model_node.dart';
 
 class MSTApproximationSolver implements Solver {
   @override
-  Stream<EdgeEvent> solve(List<Node> nodes,  Stream<EdgeEvent> sync) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes) async* {
     throw UnimplementedError();
   }
 }

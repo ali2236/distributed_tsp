@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:tsp_base/core.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver.dart';
+import 'package:tsp_base/src/algorithms/solvers/solver_nearest_neighbor.dart';
+import 'package:tsp_base/src/models/extensions/extension_edges.dart';
 import 'package:tsp_base/src/models/extensions/extension_nodes.dart';
 import 'package:tsp_base/src/models/model_edge_event.dart';
 import 'package:tsp_base/src/models/model_node.dart';
@@ -9,21 +12,46 @@ class SimulatedAnnealingSolver implements Solver {
   const SimulatedAnnealingSolver();
 
   @override
-  Stream<EdgeEvent> solve(List<Node> nodes, Stream<EdgeEvent> sync) async* {
-    double temp = 1000000000.0;
+  Stream<EdgeEvent> solve(List<Node> nodes) async* {
+    final nnEdges = (await NearestNeighbourSolver()
+            .solve(nodes)
+            .toList()
+            .then((e) => e.map((e) => e.edges)))
+        .reduce((acc, e) => acc.followedBy(e).toList())
+        .toList();
+
+    var iteration = 5;
+    var path = nnEdges.nodes;
+    while(iteration-->0){
+      var lastEvent = EdgeEvent(edges: [], event: EdgeEvent.event_replace);
+      await for(var event in _solve(path)){
+        lastEvent = event;
+        yield event;
+      }
+      path = lastEvent.edges.nodes;
+    }
+
+    yield EdgeEvent.done();
+    print('done');
+  }
+
+  Stream<EdgeEvent> _solve(List<Node> nodes) async* {
+    double temp = 1.0;
     double coolingRate = 0.00001;
     var currentSolution = List.of(nodes);
+    var currentLen = currentSolution.pathLength;
     var best = currentSolution;
+    var bestLen = currentLen;
     final r = Random();
     final n = nodes.length;
 
     yield EdgeEvent(
       edges: best.path.toList(),
-      event: EdgeEvent.event_add,
+      event: EdgeEvent.event_replace,
     );
 
     // Loop until system has cooled
-    while (temp > 1) {
+    while (temp >= 1e-10) {
       // Create new neighbour tour
       final newSolution = List.of(currentSolution);
 
@@ -45,40 +73,29 @@ class SimulatedAnnealingSolver implements Solver {
       newSolution[tourPos1] = citySwap2;
 
       // Get energy of solutions
-      var currentDistance = currentSolution.pathLength;
-      var neighbourDistance = newSolution.pathLength;
+      var newLen = newSolution.pathLength;
 
       // Decide if we should accept the neighbour
-      if (_acceptanceProbability(currentDistance, neighbourDistance, temp) >
-          r.nextDouble()) {
+      if (_acceptanceProbability(currentLen, newLen, temp) >= r.nextDouble()) {
         currentSolution = newSolution;
+        currentLen = newLen;
       }
 
       // Keep track of the best solution found
-      if (currentSolution.pathLength < best.pathLength) {
+      if (currentLen < bestLen) {
         best = currentSolution;
+        bestLen = currentLen;
 
         yield EdgeEvent(
           edges: best.path.toList(),
           event: EdgeEvent.event_replace,
         );
+
+        await Future.delayed(Duration(microseconds: 0));
       }
 
-      // Cool system
-      temp *= 1 - coolingRate;
+      temp *= (1 - coolingRate);
     }
-
-    print('best dst: ${best.pathLength}');
-    /*yield EdgeEvent(
-      edges: best.path.toList(),
-      event: EdgeEvent.event_clear,
-    );
-    yield EdgeEvent(
-      edges: best.path.toList(),
-      event: EdgeEvent.event_add,
-    );*/
-
-    yield EdgeEvent.done();
   }
 }
 

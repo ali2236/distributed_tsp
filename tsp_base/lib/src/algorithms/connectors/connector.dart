@@ -2,6 +2,8 @@ import 'package:tsp_base/core.dart';
 
 abstract class Connector {
 
+  static const id = 'connector';
+
   const Connector();
 
   // find tsp edge nodes
@@ -23,5 +25,5 @@ abstract class Connector {
     return nodes;
   }
 
-  Set<Edge> connect(Dataset dataset);
+  void connect(Dataset dataset);
 }

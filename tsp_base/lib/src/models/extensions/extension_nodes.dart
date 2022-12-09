@@ -12,6 +12,14 @@ extension Path on List<Node> {
     }
   }
 
+  Iterable<Edge> get cycle sync* {
+    yield* path;
+    yield Edge(firstNode: last, secondNode: first);
+  }
+
   double get pathLength =>
       path.map((e) => e.length).reduce((acc, val) => acc + val);
+
+  double get cycleLength =>
+      cycle.map((e) => e.length).reduce((acc, val) => acc + val);
 }

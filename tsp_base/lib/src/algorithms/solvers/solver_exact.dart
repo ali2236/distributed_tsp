@@ -4,7 +4,7 @@ class ExactSolver extends Solver {
   const ExactSolver();
 
   @override
-  Stream<EdgeEvent> solve(List<Node> nodes, Stream<EdgeEvent> sync) async* {
+  Stream<EdgeEvent> solve(List<Node> nodes) async* {
     yield EdgeEvent(
       edges: _Tour.bestTour(nodes.toSet()).edges,
       event: EdgeEvent.event_add,
