@@ -9,7 +9,6 @@ import 'model_list_content.dart';
 import 'model_node.dart';
 
 Map<String, Function(Map<String, dynamic> json)> typeMap = {
-  Slave.Type : Slave.fromJson,
   Message.Type : Message.fromJson,
   NullContent.Type : (_) => NullContent(),
   Node.Type : Node.fromJson,

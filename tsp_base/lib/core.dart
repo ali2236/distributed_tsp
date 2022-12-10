@@ -17,3 +17,5 @@ export 'src/algorithms/group_nearest_n.dart';
 export 'src/algorithms/splitters/splitters.dart';
 export 'src/algorithms/connectors/connectors.dart';
 export 'src/algorithms/solvers/solvers.dart';
+
+export 'src/algorithms/coordinator/coordinators.dart';

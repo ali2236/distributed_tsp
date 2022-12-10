@@ -9,7 +9,7 @@ abstract class Coordinator {
     String solverId,
     Connector connector,
     Dataset dataset,
-    Map<String, StreamController<Message>> slaves,
+    List<Slave> slaves,
   );
 
 }

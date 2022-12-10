@@ -1,20 +1,14 @@
-import 'package:tsp_base/src/models/interface_jsonable.dart';
+import 'dart:async';
 
-class Slave implements Jsonable {
+
+import 'model_message.dart';
+
+class Slave {
   static final Type = 'slave';
   final String id;
+  final receiveController = StreamController<Message>.broadcast();
+  final sendController = StreamController<Message>.broadcast();
 
-  const Slave(this.id);
+  Slave(this.id);
 
-  factory Slave.fromJson(Map<String, dynamic> json) {
-    return Slave(json['path']);
-  }
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'id': id,
-      };
-
-  @override
-  String get type => Type;
 }

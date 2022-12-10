@@ -7,6 +7,7 @@ import 'package:tsp_base/src/models/model_dataset.dart';
 import 'package:tsp_base/src/models/model_edge_event.dart';
 import 'package:tsp_base/src/models/model_list_content.dart';
 import 'package:tsp_base/src/models/model_message.dart';
+import 'package:tsp_base/src/models/model_slave.dart';
 import 'package:tsp_base/src/models/model_string_content.dart';
 
 import '../../models/enum_events.dart';
@@ -18,13 +19,13 @@ class DefaultCoordinator extends Coordinator {
     String solverId,
     Connector connector,
     Dataset dataset,
-    Map<String, StreamController<Message>> slaves,
+    List<Slave> slaves,
   ) async {
     var done = 0;
     // set solver method
-    for (var slave in slaves.values) {
+    for (var slave in slaves) {
       final msg = Message(Events.solver, StringContent(solverId));
-      slave.sink.add(msg);
+      slave.sendController.add(msg);
     }
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -34,7 +35,7 @@ class DefaultCoordinator extends Coordinator {
 
     // stream points to each slave
     final edgeCollection = Completer();
-    final sinks = slaves.values.map((e) => e.sink).toList();
+    final sinks = slaves.map((e) => e.sendController.sink).toList();
 
     void processMessage(Message msg) {
       if (msg.event == Events.edgeEvent) {
@@ -58,9 +59,11 @@ class DefaultCoordinator extends Coordinator {
       }
     }
 
-    final streams = slaves.values.map((e) => e.stream.listen((event) {
-          processMessage(event);
-        }));
+    final streams = slaves.map(
+      (e) => e.receiveController.stream.listen((event) {
+        processMessage(event);
+      }),
+    );
 
     Future.forEach(List.generate(slaves.length, (i) => i), (i) async {
       final points = chunks[i];

@@ -9,7 +9,7 @@ class SlavesService with ChangeNotifier {
   HttpServer? _server;
   Dataset? _dataset;
   final _slaves = <String, WebSocket>{};
-  final _slaveControllers = <String, StreamController<Message>>{};
+  final slaves = <Slave>[];
 
   bool get started => _server != null;
 
@@ -29,14 +29,17 @@ class SlavesService with ChangeNotifier {
       final socket = await WebSocketTransformer.upgrade(req);
       final slaveId = req.headers.value('id')!;
       _slaves.addAll({slaveId: socket});
-      final controller = StreamController<Message>.broadcast();
-      _slaveControllers.addAll({slaveId:controller});
+      final slave = Slave(slaveId);
+      slaves.add(slave);
       socket.listen((event) {
         if (event is String) {
           final message = Message.fromJson(jsonDecode(event));
           message.sender = slaveId;
-          controller.sink.add(message);
+          slave.receiveController.sink.add(message);
         }
+      });
+      slave.sendController.stream.listen((msg) {
+        socket.add(msg.jsonString);
       });
       notifyListeners();
     });
@@ -48,6 +51,7 @@ class SlavesService with ChangeNotifier {
     _server = null;
     _slaves.clear();
     _dataset = null;
+    slaves.clear();
     notifyListeners();
   }
 
@@ -58,7 +62,17 @@ class SlavesService with ChangeNotifier {
 
   int get salvesCount => _slaves.length;
 
-  void startSolving(Dataset dataset, Splitter splitter, String solverId, Connector connector) async {
-
-  }
+  void startSolving(
+    Dataset dataset,
+    Splitter splitter,
+    String solverId,
+    Connector connector,
+  ) async =>
+      await DefaultCoordinator().solve(
+        splitter,
+        solverId,
+        connector,
+        dataset,
+        slaves,
+      );
 }
