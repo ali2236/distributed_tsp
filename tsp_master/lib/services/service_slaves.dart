@@ -7,13 +7,12 @@ import 'package:tsp_base/core.dart';
 
 class SlavesService with ChangeNotifier {
   HttpServer? _server;
-  Dataset? _dataset;
   final _slaves = <String, WebSocket>{};
   final slaves = <Slave>[];
 
   bool get started => _server != null;
 
-  bool get _acceptsSlaves => _dataset == null;
+  var _acceptsSlaves = true;
 
   int get port => _server?.port ?? 2022;
 
@@ -50,13 +49,13 @@ class SlavesService with ChangeNotifier {
     _server?.close(force: true);
     _server = null;
     _slaves.clear();
-    _dataset = null;
+    _acceptsSlaves = true;
     slaves.clear();
     notifyListeners();
   }
 
   void restart() {
-    _dataset = null;
+    _acceptsSlaves = true;
     notifyListeners();
   }
 
@@ -67,12 +66,14 @@ class SlavesService with ChangeNotifier {
     Splitter splitter,
     String solverId,
     Connector connector,
-  ) async =>
-      await DefaultCoordinator().solve(
+  ) async {
+    _acceptsSlaves = false;
+    await DefaultCoordinator().solve(
         splitter,
         solverId,
         connector,
         dataset,
         slaves,
       );
+  }
 }
