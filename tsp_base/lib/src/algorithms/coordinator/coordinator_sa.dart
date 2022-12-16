@@ -16,7 +16,7 @@ import 'package:tsp_base/src/models/model_slave.dart';
 
 import '../../models/model_string_content.dart';
 
-class IncrementalCoordinator implements Coordinator {
+class SACoordinator implements Coordinator {
   @override
   Future<void> solve(
     Dataset dataset,
@@ -59,13 +59,12 @@ class IncrementalCoordinator implements Coordinator {
       partitions.add(p);
     }
 
-    final connectorCompleters = {
-      for (var slave in slaves) slave.id: Completer<void>(),
-    };
 
     // slave communication setup
-    var done = 0;
-    final edgeCollection = Completer();
+    final edgeCollectionCompleter = Completer();
+    var localTspDone = 0;
+    final connectorCompleter = Completer<void>();
+    var connectorsDone = 0;
     void processMessage(Message msg) {
       if (msg.event == Events.edgeEvent) {
         final ee = msg.content as EdgeEvent;
@@ -78,10 +77,10 @@ class IncrementalCoordinator implements Coordinator {
           dataset.clearEdges(msg.sender);
           dataset.putEdges(edges, msg.sender);
         } else if (ee.event == EdgeEvent.event_done) {
-          done++;
+          localTspDone++;
           // check done
-          if (done == n) {
-            edgeCollection.complete();
+          if (localTspDone == n) {
+            edgeCollectionCompleter.complete();
           }
         }
         dataset.notifyChange();
@@ -94,7 +93,7 @@ class IncrementalCoordinator implements Coordinator {
         if (msg.event == Events.findConnection) {
           final connection = msg.content as Edge;
           final index = partitions.indexOf(partition);
-          final next = partitions[index + 1];
+          final next = partitions[(index + 1)%n];
 
           final last = partition.nodes.indexOf(connection.firstNode);
           partition.nodes.swap(last, partition.nodes.length - 1);
@@ -103,7 +102,12 @@ class IncrementalCoordinator implements Coordinator {
           next.nodes.swap(first, 0);
 
           dataset.putEdges([connection], partition.slave.id);
-          connectorCompleters[partition.slave.id]?.complete();
+          connectorsDone++;
+          if(connectorsDone == n){
+            connectorCompleter.complete();
+          }
+        } else {
+          processMessage(msg);
         }
       });
     }
@@ -122,13 +126,13 @@ class IncrementalCoordinator implements Coordinator {
       final next = partitions[(i + 1) % n];
 
       final msg = Message(
-        Events.points,
+        Events.findConnection,
         ListContent([ListContent(curr.nodes), ListContent(next.nodes)]),
       );
       curr.slave.sendController.sink.add(msg);
     }
 
-    await Future.wait(connectorCompleters.values.map((c) => c.future));
+    await connectorCompleter.future;
 
     //  2. run SA
     for (var partition in partitions) {
@@ -136,7 +140,7 @@ class IncrementalCoordinator implements Coordinator {
       partition.slave.sendController.sink.add(msg);
     }
 
-    await edgeCollection.future;
+    await edgeCollectionCompleter.future;
 
     dataset.notifyChange();
     return;

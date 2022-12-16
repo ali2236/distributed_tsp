@@ -40,9 +40,10 @@ class MasterService {
       _solver = solverFactories[type]!();
     } else if(msg.event == Events.findConnection){
       final partitions = msg.content as ListContent;
-      final p1 = partitions.items[0] as ListContent<Node>;
-      final p2 = partitions.items[1] as ListContent<Node>;
-      final connection = ClosestConnector().connect(p1.items, p2.items);
+      final p1 = partitions.items[0] as ListContent;
+      final p2 = partitions.items[1] as ListContent;
+      final connection = ClosestConnector().connect(p1.items.cast(), p2.items.cast());
+      print('found connector');
       _socket.add(Message(Events.findConnection, connection).jsonString);
     }
   }

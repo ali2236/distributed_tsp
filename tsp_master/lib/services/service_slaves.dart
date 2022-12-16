@@ -68,7 +68,8 @@ class SlavesService with ChangeNotifier {
     Connector connector,
   ) async {
     _acceptsSlaves = false;
-    await DefaultCoordinator(
+    // await SACoordinator().solve(dataset, slaves);
+     await DefaultCoordinator(
       splitter,
       solverId,
       connector,
