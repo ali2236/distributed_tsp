@@ -5,4 +5,5 @@ abstract class Events {
   static const edgeEvent = 'edge_event';
   static const solver = 'solver';
   static const stop = 'stop';
+  static const findConnection = 'find_connection';
 }

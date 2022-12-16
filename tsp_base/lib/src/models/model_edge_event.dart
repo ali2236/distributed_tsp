@@ -15,9 +15,8 @@ class EdgeEvent implements Jsonable {
     required this.event,
   });
 
-  const EdgeEvent.done()
-      : edges = const [],
-        event = EdgeEvent.event_done;
+  const EdgeEvent.done([this.edges = const []])
+      : event = EdgeEvent.event_done;
 
   factory EdgeEvent.fromJson(Map<String, dynamic> json) {
     return EdgeEvent(

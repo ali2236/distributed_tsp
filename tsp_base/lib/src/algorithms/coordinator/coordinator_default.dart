@@ -12,12 +12,15 @@ import 'package:tsp_base/src/models/model_string_content.dart';
 
 import '../../models/enum_events.dart';
 
-class DefaultCoordinator extends Coordinator {
+class DefaultCoordinator implements Coordinator {
+  final Splitter splitter;
+  final String solverId;
+  final Connector connector;
+
+  const DefaultCoordinator(this.splitter, this.solverId, this.connector);
+
   @override
   Future<void> solve(
-    Splitter splitter,
-    String solverId,
-    Connector connector,
     Dataset dataset,
     List<Slave> slaves,
   ) async {

@@ -6,6 +6,7 @@ export 'connector.dart';
 export 'connector_order.dart';
 export 'connector_greedy.dart';
 export 'connector_none.dart';
+export 'connector_closest.dart';
 
 const connectors = {
   'By Order': OrderConnector,

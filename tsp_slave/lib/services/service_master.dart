@@ -38,6 +38,12 @@ class MasterService {
       final name = (msg.content as StringContent).text;
       final type = solvers[name];
       _solver = solverFactories[type]!();
+    } else if(msg.event == Events.findConnection){
+      final partitions = msg.content as ListContent;
+      final p1 = partitions.items[0] as ListContent<Node>;
+      final p2 = partitions.items[1] as ListContent<Node>;
+      final connection = ClosestConnector().connect(p1.items, p2.items);
+      _socket.add(Message(Events.findConnection, connection).jsonString);
     }
   }
 }
