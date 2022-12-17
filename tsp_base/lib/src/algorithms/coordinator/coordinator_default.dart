@@ -28,7 +28,7 @@ class DefaultCoordinator implements Coordinator {
     // set solver method
     for (var slave in slaves) {
       final msg = Message(Events.solver, StringContent(solverId));
-      slave.sendController.add(msg);
+      slave.sender!(msg);
     }
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -38,7 +38,7 @@ class DefaultCoordinator implements Coordinator {
 
     // stream points to each slave
     final edgeCollection = Completer();
-    final sinks = slaves.map((e) => e.sendController.sink).toList();
+    final sinks = slaves.map((e) => e.sender).toList();
 
     void processMessage(Message msg) {
       if (msg.event == Events.edgeEvent) {
@@ -62,17 +62,17 @@ class DefaultCoordinator implements Coordinator {
       }
     }
 
-    final streams = slaves.map(
-      (e) => e.receiveController.stream.listen((event) {
+    for (var s in slaves) {
+      s.receiver = (event) {
         processMessage(event);
-      }),
-    );
+      };
+    }
 
     Future.forEach(List.generate(slaves.length, (i) => i), (i) async {
       final points = chunks[i];
       final sink = sinks[i];
       await Future.microtask(
-        () => sink.add(Message(Events.points, ListContent(points))),
+        () => sink!(Message(Events.points, ListContent(points))),
       );
     });
 
@@ -82,6 +82,10 @@ class DefaultCoordinator implements Coordinator {
 
     // connect
     connector.connect(dataset);
+
+    await Future.delayed(Duration(milliseconds: 1000), () {
+      dataset.notifyChange();
+    });
     dataset.notifyChange();
 
     // finished!

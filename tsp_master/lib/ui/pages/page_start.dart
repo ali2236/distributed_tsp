@@ -24,6 +24,7 @@ class _StartPageState extends State<StartPage> {
   var splitter = splitterFactories.values.first();
   var solverId = solvers.keys.first;
   var connector = connectorFactories.values.first();
+  var coordinator = coordinators.keys.first;
 
   @override
   void initState() {
@@ -45,55 +46,79 @@ class _StartPageState extends State<StartPage> {
               Row(children: const [Spacer()]),
               const SizedBox(height: 64),
               AnimatedBuilder(
-                  animation: widget.slavesService,
-                  builder: (context, _) {
-                    return SizedBox(
-                      width: 400,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: port,
-                                  enabled: true,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: InputDecoration(
-                                      label: const Text('Socket Port'),
-                                      helperText: 'Number of Connected Slaves:'
-                                          ' ${widget.slavesService.salvesCount}'),
+                animation: widget.slavesService,
+                builder: (context, _) {
+                  return SizedBox(
+                    width: 400,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: port,
+                                enabled: true,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                decoration: InputDecoration(
+                                    label: const Text('Socket Port'),
+                                    helperText: 'Number of Connected Slaves:'
+                                        ' ${widget.slavesService.salvesCount}'),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            if (!widget.slavesService.started)
+                              ElevatedButton(
+                                child: const Text('Start Socket'),
+                                onPressed: () => widget.slavesService.start(
+                                    int.tryParse(port.text) ??
+                                        widget.slavesService.port),
+                              ),
+                            if (widget.slavesService.started)
+                              ElevatedButton(
+                                child: const Text('Stop Socket'),
+                                onPressed: () => widget.slavesService.stop(),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: widget.slavesService.started
+                                      ? Colors.green
+                                      : Colors.red,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              if (!widget.slavesService.started)
-                                ElevatedButton(
-                                  child: const Text('Start Socket'),
-                                  onPressed: () => widget.slavesService.start(
-                                      int.tryParse(port.text) ??
-                                          widget.slavesService.port),
+                            ),
+                          ],
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Coordinator'),
+                          subtitle:
+                              const Text('Orchestrator Algorithm'),
+                          trailing: DropdownButton<String>(
+                            value: coordinator,
+                            onChanged: (t) {
+                              if (t != null) {
+                                setState(() {
+                                  coordinator = t;
+                                });
+                              }
+                            },
+                            items: [
+                              for (var e in coordinators.keys)
+                                DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e),
                                 ),
-                              if (widget.slavesService.started)
-                                ElevatedButton(
-                                  child: const Text('Stop Socket'),
-                                  onPressed: () => widget.slavesService.stop(),
-                                ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: widget.slavesService.started
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
+                        ),
+                        if (coordinator == 'Custom')
                           ListTile(
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Splitter'),
@@ -116,6 +141,7 @@ class _StartPageState extends State<StartPage> {
                               ],
                             ),
                           ),
+                        if (coordinator == 'Custom')
                           ListTile(
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Solver'),
@@ -138,6 +164,7 @@ class _StartPageState extends State<StartPage> {
                               ],
                             ),
                           ),
+                        if (coordinator == 'Custom')
                           ListTile(
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Connector'),
@@ -160,44 +187,46 @@ class _StartPageState extends State<StartPage> {
                               ],
                             ),
                           ),
-                          TextField(
-                            controller: nodes,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            decoration: const InputDecoration(
-                                label: Text('Number of Nodes')),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: !widget.slavesService.started ||
-                                    widget.slavesService.salvesCount == 0
-                                ? null
-                                : () {
-                                    final nodeCount =
-                                        int.tryParse(nodes.text) ?? 20;
-                                    final controller = TspController(
-                                      dataset: Dataset.generate(nodeCount),
-                                      slaveService: widget.slavesService,
-                                      splitter: splitter,
-                                      solverId: solverId,
-                                      connector: connector,
-                                    );
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return TspPage(manager: controller);
-                                        },
-                                      ),
-                                    );
-                                  },
-                            child: const Text('Start'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                        TextField(
+                          controller: nodes,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: const InputDecoration(
+                              label: Text('Number of Nodes')),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: !widget.slavesService.started ||
+                                  widget.slavesService.salvesCount == 0
+                              ? null
+                              : () {
+                                  final nodeCount =
+                                      int.tryParse(nodes.text) ?? 20;
+                                  final controller = TspController(
+                                    dataset: Dataset.generate(nodeCount),
+                                    slaveService: widget.slavesService,
+                                    coordinator: coordinator == 'Custom'
+                                        ? DefaultCoordinator(
+                                            splitter, solverId, connector)
+                                        : SACoordinator(),
+                                  );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return TspPage(manager: controller);
+                                      },
+                                    ),
+                                  );
+                                },
+                          child: const Text('Start'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ],

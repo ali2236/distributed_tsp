@@ -28,12 +28,15 @@ class MasterService {
   }
 
   StreamSubscription? _lastSolver;
+
   void _processMessage(Message msg) async {
     if (msg.event == Events.points) {
       final lc = msg.content as ListContent;
       final point = lc.items.cast<Node>();
       _lastSolver = _solver?.solve(point).listen((edgeEvent) {
-        _socket.add(Message(Events.edgeEvent, edgeEvent).jsonString);
+        _socket.add(
+          Message(Events.edgeEvent, edgeEvent).jsonString,
+        );
       });
     } else if (msg.event == Events.solver) {
       final name = (msg.content as StringContent).text;
@@ -52,7 +55,8 @@ class MasterService {
           .toList();
       print('found connector');
       _socket.add(
-          Message(Events.findConnection, ListContent(connections)).jsonString);
+        Message(Events.findConnection, ListContent(connections)).jsonString,
+      );
     }
   }
 }

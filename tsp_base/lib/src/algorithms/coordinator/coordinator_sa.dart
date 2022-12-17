@@ -91,7 +91,7 @@ class SACoordinator implements Coordinator {
     }
 
     for (var partition in partitions) {
-      partition.slave.receiveController.stream.listen((msg) {
+      partition.slave.receiver = (msg) {
         // last(first) -> first(second)
         if (msg.event == Events.findConnection) {
           final list = msg.content as ListContent;
@@ -128,7 +128,7 @@ class SACoordinator implements Coordinator {
         } else {
           processMessage(msg);
         }
-      });
+      };
     }
 
     // slave solver algorithm
@@ -137,7 +137,7 @@ class SACoordinator implements Coordinator {
         Events.solver,
         StringContent(n > 1 ? 'Simulated Annealing*' : 'SA - cycle'),
       );
-      slave.sendController.add(msg);
+      slave.sender!(msg);
     }
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -152,7 +152,7 @@ class SACoordinator implements Coordinator {
           Events.findConnection,
           ListContent([ListContent(curr.nodes), ListContent(next.nodes)]),
         );
-        curr.slave.sendController.sink.add(msg);
+        curr.slave.sender!(msg);
       }
 
       await connectorCompleter.future;
@@ -168,7 +168,7 @@ class SACoordinator implements Coordinator {
             ListContent(List.of(next.nodes)..remove(connection.firstNode))
           ]),
         );
-        curr.slave.sendController.sink.add(msg);
+        curr.slave.sender!(msg);
 
         await lastConnectorCompleter.future;
       }
@@ -177,7 +177,7 @@ class SACoordinator implements Coordinator {
     //  2. run SA
     for (var partition in partitions) {
       final msg = Message(Events.points, ListContent(partition.nodes));
-      partition.slave.sendController.sink.add(msg);
+      partition.slave.sender!(msg);
     }
 
     await edgeCollectionCompleter.future;

@@ -4,24 +4,18 @@ import 'package:tsp_base/core.dart';
 class TspController {
   final Dataset dataset;
   final SlavesService slaveService;
-  final Splitter splitter;
-  final Connector connector;
-  final String solverId;
+  final Coordinator coordinator;
 
   TspController({
     required this.dataset,
     required this.slaveService,
-    required this.splitter,
-    required this.solverId,
-    required this.connector,
+    required this.coordinator,
   });
 
   void solve() {
     slaveService.startSolving(
+      coordinator,
       dataset,
-      splitter,
-      solverId,
-      connector,
     );
   }
 

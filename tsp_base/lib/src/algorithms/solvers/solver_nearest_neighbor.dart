@@ -18,6 +18,7 @@ class NearestNeighbourSolver implements Solver {
       event: EdgeEvent.event_add,
     );
     while (v.isNotEmpty) {
+      // await Future.delayed(Duration(milliseconds: 100));
       start = next;
       next = findNearestNode(v, start);
       v.remove(next);

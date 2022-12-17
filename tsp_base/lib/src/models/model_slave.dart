@@ -6,8 +6,8 @@ import 'model_message.dart';
 class Slave {
   static final Type = 'slave';
   final String id;
-  final receiveController = StreamController<Message>.broadcast(sync: true);
-  final sendController = StreamController<Message>.broadcast(sync: true);
+  void Function(Message msg)? receiver;
+  void Function(Message msg)? sender;
 
   Slave(this.id);
 

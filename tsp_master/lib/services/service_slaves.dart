@@ -34,12 +34,12 @@ class SlavesService with ChangeNotifier {
         if (event is String) {
           final message = Message.fromJson(jsonDecode(event));
           message.sender = slaveId;
-          slave.receiveController.sink.add(message);
+          slave.receiver!(message);
         }
       });
-      slave.sendController.stream.listen((msg) {
+      slave.sender = (msg) {
         socket.add(msg.jsonString);
-      });
+      };
       notifyListeners();
     });
     notifyListeners();
@@ -61,21 +61,8 @@ class SlavesService with ChangeNotifier {
 
   int get salvesCount => _slaves.length;
 
-  void startSolving(
-    Dataset dataset,
-    Splitter splitter,
-    String solverId,
-    Connector connector,
-  ) async {
+  void startSolving(Coordinator coordinator, Dataset dataset) async {
     _acceptsSlaves = false;
-    await SACoordinator().solve(dataset, slaves);
-     /*await DefaultCoordinator(
-      splitter,
-      solverId,
-      connector,
-    ).solve(
-      dataset,
-      slaves,
-    );*/
+    await coordinator.solve(dataset, slaves);
   }
 }

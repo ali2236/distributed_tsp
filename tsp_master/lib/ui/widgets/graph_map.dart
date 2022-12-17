@@ -34,7 +34,7 @@ class _GraphMapState extends State<GraphMap> {
         dataset: widget.dataset,
         dotColor: Theme.of(context).colorScheme.primary,
         lineColor: Theme.of(context).colorScheme.onBackground,
-        connectorColor: Colors.red,
+        connectorColor: Colors.red, // Theme.of(context).colorScheme.error,
       ),
     );
   }
