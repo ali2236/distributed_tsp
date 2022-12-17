@@ -6,6 +6,7 @@ import 'model_node.dart';
 class Dataset {
   final List<Node> nodes;
   final Map<String, List<Edge>> _edgePartitions = {};
+  Map<String, List<Edge>> get namedEdgePartitions => _edgePartitions;
 
   List<List<Edge>> get edgePartition => _edgePartitions.values.toList();
 

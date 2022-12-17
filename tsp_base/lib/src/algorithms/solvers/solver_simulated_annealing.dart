@@ -64,7 +64,7 @@ class SimulatedAnnealingSolver implements Solver {
       if(changeStartEnd){
         return r.nextInt(n);
       } else {
-        return r.nextInt(n-1)+1;
+        return r.nextInt(n-2)+1; // [1-(n-2)]
       }
     }
 

@@ -18,10 +18,8 @@ import '../../models/model_string_content.dart';
 
 class SACoordinator implements Coordinator {
   @override
-  Future<void> solve(
-    Dataset dataset,
-    List<Slave> slaves,
-  ) async {
+  Future<void> solve(Dataset dataset,
+      List<Slave> slaves,) async {
     final nodes = dataset.nodes;
     final n = slaves.length;
 
@@ -38,13 +36,16 @@ class SACoordinator implements Coordinator {
       cycle: true,
       changeStartEnd: true,
     );
-    final clusterPath = await clusterSolver.solve(meanGraph).last.then(
+    final clusterPath = await clusterSolver
+        .solve(meanGraph)
+        .last
+        .then(
           (ee) => ee.edges,
-        );
+    );
 
     // assign each slave to a partition
     final partitionNodes =
-        clusters.clusterPoints.map(kmeans.pointsToNodes).toList();
+    clusters.clusterPoints.map(kmeans.pointsToNodes).toList();
     final unorderedPartitions = [
       for (var i = 0; i < n; i++)
         Partition(slaves[i], partitionNodes[i], meanGraph[i])
@@ -55,7 +56,7 @@ class SACoordinator implements Coordinator {
     final partitions = <Partition>[];
     for (var i = 0; i < n; i++) {
       final p = unorderedPartitions.firstWhere(
-        (p) => p.mean == orderReference[i],
+            (p) => p.mean == orderReference[i],
       );
       unorderedPartitions.remove(p);
       partitions.add(p);
@@ -65,7 +66,9 @@ class SACoordinator implements Coordinator {
     final edgeCollectionCompleter = Completer();
     var localTspDone = 0;
     final connectorCompleter = Completer<void>();
+    final lastConnectorCompleter = Completer<void>();
     var connectorsDone = 0;
+    final pts = n > 2 ? n : n - 1;
     void processMessage(Message msg) {
       if (msg.event == Events.edgeEvent) {
         final ee = msg.content as EdgeEvent;
@@ -104,8 +107,10 @@ class SACoordinator implements Coordinator {
 
           dataset.putEdges([connection], 'connections');
           connectorsDone++;
-          if (connectorsDone == n) {
+          if (connectorsDone == pts) {
             connectorCompleter.complete();
+          } else if (connectorsDone == n) {
+            lastConnectorCompleter.complete();
           }
         } else {
           processMessage(msg);
@@ -117,7 +122,7 @@ class SACoordinator implements Coordinator {
     for (var slave in slaves) {
       final msg = Message(
         Events.solver,
-        StringContent('Simulated Annealing*'),
+        StringContent(n>1 ? 'Simulated Annealing*' : 'SA - cycle'),
       );
       slave.sendController.add(msg);
     }
@@ -125,18 +130,38 @@ class SACoordinator implements Coordinator {
     await Future.delayed(const Duration(milliseconds: 50));
 
     // find closest next node for each partition
-    for (var i = 0; i < n; i++) {
-      final curr = partitions[i];
-      final next = partitions[(i + 1) % n];
+    if (n >= 2) {
+      for (var i = 0; i < pts; i++) {
+        final curr = partitions[i];
+        final next = partitions[(i + 1)%n];
 
-      final msg = Message(
-        Events.findConnection,
-        ListContent([ListContent(curr.nodes), ListContent(next.nodes)]),
-      );
-      curr.slave.sendController.sink.add(msg);
+        final msg = Message(
+          Events.findConnection,
+          ListContent([ListContent(curr.nodes), ListContent(next.nodes)]),
+        );
+        curr.slave.sendController.sink.add(msg);
+      }
+
+      await connectorCompleter.future;
+
+      if (n == 2) {
+        final curr = partitions[1];
+        final next = partitions[0];
+        final connection = dataset.edges.first;
+        final msg = Message(
+          Events.findConnection,
+          ListContent([
+            ListContent(List.of(curr.nodes)
+              ..remove(connection.secondNode)),
+            ListContent(List.of(next.nodes)
+              ..remove(connection.firstNode))
+          ]),
+        );
+        curr.slave.sendController.sink.add(msg);
+
+        await lastConnectorCompleter.future;
+      }
     }
-
-    await connectorCompleter.future;
 
     //  2. run SA
     for (var partition in partitions) {

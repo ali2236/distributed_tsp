@@ -3,6 +3,7 @@ import 'package:tsp_base/src/algorithms/solvers/solver_greedy.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver_nearest_neighbor.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver_order.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver_sa.dart';
+import 'package:tsp_base/src/algorithms/solvers/solver_sa_cycle.dart';
 import 'package:tsp_base/src/algorithms/solvers/solver_simulated_annealing.dart';
 
 export 'solver.dart';
@@ -19,6 +20,7 @@ const solvers = {
   'Simulated Annealing' : SimulatedAnnealingSolver,
   'Exact' : ExactSolver,
   'Simulated Annealing*' : SASolver,
+  'SA - cycle' : SACycleSolver,
 };
 
 final solverFactories = {
@@ -28,4 +30,5 @@ final solverFactories = {
   GreedySolver: () => const GreedySolver(),
   SimulatedAnnealingSolver : () => const SimulatedAnnealingSolver(),
   SASolver : () => const SASolver(),
+  SACycleSolver : () => const SACycleSolver(),
 };

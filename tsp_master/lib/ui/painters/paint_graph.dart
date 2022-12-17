@@ -6,12 +6,13 @@ import 'package:tsp_base/core.dart';
 
 class GraphPainter extends CustomPainter {
   final Dataset dataset;
-  final Color dotColor, lineColor;
+  final Color dotColor, lineColor, connectorColor;
 
   const GraphPainter({
     required this.dataset,
     required this.dotColor,
     required this.lineColor,
+    required this.connectorColor,
   });
 
   @override
@@ -22,23 +23,29 @@ class GraphPainter extends CustomPainter {
       ..color = lineColor
       ..strokeWidth = (0.005 * size.width) / log(n);
 
+    final connectorPaint = Paint()
+      ..color = connectorColor
+      ..strokeWidth = (0.005 * size.width) / log(n);
+
     // edges
-    for(var edge in dataset.edges){
+/*    for(var edge in dataset.edges){
       canvas.drawLine(
         edge.firstNode.offset.scaleBySize(size),
         edge.secondNode.offset.scaleBySize(size),
         edgePaint
       );
-    }
-    /*for (var edgePartition in dataset.edgePartition) {
-      for(var edge in edgePartition){
+    }*/
+    for (var entry in dataset.namedEdgePartitions.entries) {
+      final name = entry.key;
+      final edgePartition = entry.value;
+      for (var edge in edgePartition) {
         canvas.drawLine(
           edge.firstNode.offset.scaleBySize(size),
           edge.secondNode.offset.scaleBySize(size),
-          edgePaint,
+          name == 'connections' ? connectorPaint : edgePaint,
         );
       }
-    }*/
+    }
 
     // nodes
     for (var node in dataset.nodes) {
