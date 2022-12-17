@@ -27,24 +27,32 @@ class MasterService {
     }
   }
 
+  StreamSubscription? _lastSolver;
   void _processMessage(Message msg) async {
     if (msg.event == Events.points) {
       final lc = msg.content as ListContent;
       final point = lc.items.cast<Node>();
-      _solver?.solve(point).listen((edgeEvent) {
+      _lastSolver = _solver?.solve(point).listen((edgeEvent) {
         _socket.add(Message(Events.edgeEvent, edgeEvent).jsonString);
       });
     } else if (msg.event == Events.solver) {
       final name = (msg.content as StringContent).text;
       final type = solvers[name];
       _solver = solverFactories[type]!();
-    } else if(msg.event == Events.findConnection){
+      _lastSolver?.cancel();
+    } else if (msg.event == Events.findConnection) {
       final partitions = msg.content as ListContent;
       final p1 = partitions.items[0] as ListContent;
       final p2 = partitions.items[1] as ListContent;
-      final connection = ClosestConnector().connect(p1.items.cast(), p2.items.cast());
+      final connections = ClosestConnector()
+          .connect(
+            p1.items.cast(),
+            p2.items.cast(),
+          )
+          .toList();
       print('found connector');
-      _socket.add(Message(Events.findConnection, connection).jsonString);
+      _socket.add(
+          Message(Events.findConnection, ListContent(connections)).jsonString);
     }
   }
 }

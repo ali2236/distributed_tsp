@@ -49,4 +49,9 @@ class Edge implements Jsonable, Comparable<Edge> {
   int compareTo(Edge other) {
     return length.compareTo(other.length);
   }
+
+  @override
+  String toString() {
+    return 'Edge{firstNode: $firstNode, secondNode: $secondNode, length: $length}';
+  }
 }

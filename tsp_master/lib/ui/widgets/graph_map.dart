@@ -22,7 +22,7 @@ class _GraphMapState extends State<GraphMap> {
   void initState() {
     super.initState();
     widget.dataset.addListener(() {
-      setState(() {});
+      if(mounted) setState(() {});
     });
   }
 

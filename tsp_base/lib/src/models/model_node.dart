@@ -38,4 +38,9 @@ class Node implements Jsonable {
 
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
+
+  @override
+  String toString() {
+    return 'Node{x: $x, y: $y}';
+  }
 }

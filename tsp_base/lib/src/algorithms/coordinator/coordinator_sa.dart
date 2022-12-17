@@ -18,8 +18,10 @@ import '../../models/model_string_content.dart';
 
 class SACoordinator implements Coordinator {
   @override
-  Future<void> solve(Dataset dataset,
-      List<Slave> slaves,) async {
+  Future<void> solve(
+    Dataset dataset,
+    List<Slave> slaves,
+  ) async {
     final nodes = dataset.nodes;
     final n = slaves.length;
 
@@ -36,16 +38,13 @@ class SACoordinator implements Coordinator {
       cycle: true,
       changeStartEnd: true,
     );
-    final clusterPath = await clusterSolver
-        .solve(meanGraph)
-        .last
-        .then(
+    final clusterPath = await clusterSolver.solve(meanGraph).last.then(
           (ee) => ee.edges,
-    );
+        );
 
     // assign each slave to a partition
     final partitionNodes =
-    clusters.clusterPoints.map(kmeans.pointsToNodes).toList();
+        clusters.clusterPoints.map(kmeans.pointsToNodes).toList();
     final unorderedPartitions = [
       for (var i = 0; i < n; i++)
         Partition(slaves[i], partitionNodes[i], meanGraph[i])
@@ -56,7 +55,7 @@ class SACoordinator implements Coordinator {
     final partitions = <Partition>[];
     for (var i = 0; i < n; i++) {
       final p = unorderedPartitions.firstWhere(
-            (p) => p.mean == orderReference[i],
+        (p) => p.mean == orderReference[i],
       );
       unorderedPartitions.remove(p);
       partitions.add(p);
@@ -93,16 +92,30 @@ class SACoordinator implements Coordinator {
 
     for (var partition in partitions) {
       partition.slave.receiveController.stream.listen((msg) {
-        // do something
+        // last(first) -> first(second)
         if (msg.event == Events.findConnection) {
-          final connection = msg.content as Edge;
+          final list = msg.content as ListContent;
+          final connections = list.items.cast<Edge>();
+          var connection = connections.first;
           final index = partitions.indexOf(partition);
           final next = partitions[(index + 1) % n];
+          var last = -1;
+          var first = -1;
+          var i = 0;
+          // identify and correct anomaly
+          do {
+            connection = connections[i++];
+            last = partition.nodes.indexOf(connection.firstNode);
+            first = next.nodes.indexOf(connection.secondNode);
+          } while ((connection.firstNode == partition.nodes.first ||
+                  connection.secondNode == next.nodes.last) ||
+              (last == -1 || first == -1) && i < connections.length);
 
-          final last = partition.nodes.indexOf(connection.firstNode);
+          if(last==-1||first==-1){
+            connection = connections[0];
+          }
+
           partition.nodes.swap(last, partition.nodes.length - 1);
-
-          final first = next.nodes.indexOf(connection.secondNode);
           next.nodes.swap(first, 0);
 
           dataset.putEdges([connection], 'connections');
@@ -122,7 +135,7 @@ class SACoordinator implements Coordinator {
     for (var slave in slaves) {
       final msg = Message(
         Events.solver,
-        StringContent(n>1 ? 'Simulated Annealing*' : 'SA - cycle'),
+        StringContent(n > 1 ? 'Simulated Annealing*' : 'SA - cycle'),
       );
       slave.sendController.add(msg);
     }
@@ -133,7 +146,7 @@ class SACoordinator implements Coordinator {
     if (n >= 2) {
       for (var i = 0; i < pts; i++) {
         final curr = partitions[i];
-        final next = partitions[(i + 1)%n];
+        final next = partitions[(i + 1) % n];
 
         final msg = Message(
           Events.findConnection,
@@ -151,10 +164,8 @@ class SACoordinator implements Coordinator {
         final msg = Message(
           Events.findConnection,
           ListContent([
-            ListContent(List.of(curr.nodes)
-              ..remove(connection.secondNode)),
-            ListContent(List.of(next.nodes)
-              ..remove(connection.firstNode))
+            ListContent(List.of(curr.nodes)..remove(connection.secondNode)),
+            ListContent(List.of(next.nodes)..remove(connection.firstNode))
           ]),
         );
         curr.slave.sendController.sink.add(msg);
@@ -182,4 +193,14 @@ class Partition {
   final Node mean;
 
   const Partition(this.slave, this.nodes, this.mean);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Partition &&
+          runtimeType == other.runtimeType &&
+          slave.id == other.slave.id;
+
+  @override
+  int get hashCode => slave.hashCode;
 }
