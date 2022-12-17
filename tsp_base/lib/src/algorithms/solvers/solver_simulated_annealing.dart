@@ -109,7 +109,6 @@ class SimulatedAnnealingSolver implements Solver {
           event: EdgeEvent.event_replace,
         );
 
-        await Future.delayed(Duration(microseconds: 0));
       }
 
       temp *= (1 - coolingRate);

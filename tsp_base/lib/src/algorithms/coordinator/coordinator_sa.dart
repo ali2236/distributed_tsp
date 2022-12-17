@@ -86,7 +86,9 @@ class SACoordinator implements Coordinator {
             edgeCollectionCompleter.complete();
           }
         }
-        dataset.notifyChange();
+        scheduleMicrotask(() {
+          dataset.notifyChange();
+        });
       }
     }
 
@@ -111,7 +113,7 @@ class SACoordinator implements Coordinator {
                   connection.secondNode == next.nodes.last) ||
               (last == -1 || first == -1) && i < connections.length);
 
-          if(last==-1||first==-1){
+          if (last == -1 || first == -1) {
             connection = connections[0];
           }
 
@@ -161,12 +163,17 @@ class SACoordinator implements Coordinator {
         final curr = partitions[1];
         final next = partitions[0];
         final connection = dataset.edges.first;
+        final p1 = List.of(curr.nodes);
+        if (p1.length > 1) {
+          p1.remove(connection.secondNode);
+        }
+        final p2 = List.of(next.nodes);
+        if (p2.length > 1) {
+          p2.remove(connection.secondNode);
+        }
         final msg = Message(
           Events.findConnection,
-          ListContent([
-            ListContent(List.of(curr.nodes)..remove(connection.secondNode)),
-            ListContent(List.of(next.nodes)..remove(connection.firstNode))
-          ]),
+          ListContent([ListContent(p1), ListContent(p2)]),
         );
         curr.slave.sender!(msg);
 
