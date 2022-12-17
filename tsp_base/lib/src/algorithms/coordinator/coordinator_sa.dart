@@ -38,8 +38,9 @@ class SACoordinator implements Coordinator {
       cycle: true,
       changeStartEnd: true,
     );
-    final clusterPath =
-        await clusterSolver.solve(meanGraph).last.then((ee) => ee.edges);
+    final clusterPath = await clusterSolver.solve(meanGraph).last.then(
+          (ee) => ee.edges,
+        );
 
     // assign each slave to a partition
     final partitionNodes =
@@ -53,12 +54,12 @@ class SACoordinator implements Coordinator {
     final orderReference = clusterPath.nodes;
     final partitions = <Partition>[];
     for (var i = 0; i < n; i++) {
-      final p =
-          unorderedPartitions.firstWhere((p) => p.mean == orderReference[i]);
+      final p = unorderedPartitions.firstWhere(
+        (p) => p.mean == orderReference[i],
+      );
       unorderedPartitions.remove(p);
       partitions.add(p);
     }
-
 
     // slave communication setup
     final edgeCollectionCompleter = Completer();
@@ -93,7 +94,7 @@ class SACoordinator implements Coordinator {
         if (msg.event == Events.findConnection) {
           final connection = msg.content as Edge;
           final index = partitions.indexOf(partition);
-          final next = partitions[(index + 1)%n];
+          final next = partitions[(index + 1) % n];
 
           final last = partition.nodes.indexOf(connection.firstNode);
           partition.nodes.swap(last, partition.nodes.length - 1);
@@ -101,9 +102,9 @@ class SACoordinator implements Coordinator {
           final first = next.nodes.indexOf(connection.secondNode);
           next.nodes.swap(first, 0);
 
-          dataset.putEdges([connection], partition.slave.id);
+          dataset.putEdges([connection], 'connections');
           connectorsDone++;
-          if(connectorsDone == n){
+          if (connectorsDone == n) {
             connectorCompleter.complete();
           }
         } else {
@@ -114,7 +115,10 @@ class SACoordinator implements Coordinator {
 
     // slave solver algorithm
     for (var slave in slaves) {
-      final msg = Message(Events.solver, StringContent('Simulated Annealing*'));
+      final msg = Message(
+        Events.solver,
+        StringContent('Simulated Annealing*'),
+      );
       slave.sendController.add(msg);
     }
 
