@@ -17,3 +17,4 @@ Professor: Dr. Saeed Sedighian Kashi
 ![](assets/slave-connection.jpg)
 1. Click the start button in the Master application.
 1. You should see the master and slaves start working to solve the randomly generated tsp problem:
+<video src="https://github.com/ali2236/distributed_tsp/blob/master/assets/tsp-run.mp4"></video>
