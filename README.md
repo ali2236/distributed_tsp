@@ -1,8 +1,6 @@
 # Distributed TSP
 
-Cloud Computing Exercise Project
-
-Professor: Dr. Saeed Sedighian Kashi
+Cloud Computing Homework Project
 
 # How to Run
 
@@ -17,8 +15,4 @@ Professor: Dr. Saeed Sedighian Kashi
 ![](assets/slave-connection.jpg)
 1. Click the start button in the Master application.
 1. You should see the master and slaves start working to solve the randomly generated tsp problem:
-
-<video controls>
-    <source src="https://github.com/ali2236/distributed_tsp/blob/master/assets/tsp-run.mp4" type="video/mp4">
-video not supported
-</video>
+![](assets/tsp-run.gif)
