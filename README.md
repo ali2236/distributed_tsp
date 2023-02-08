@@ -4,7 +4,7 @@ Cloud Computing Homework Project
 
 # How to Run
 
-1. Download the Master & Slave application from releases
+1. Download Master & Slave applications from releases
 
 1. Open The Master App:
 ![](assets/main-screen.jpg)
@@ -14,5 +14,5 @@ Cloud Computing Homework Project
 1. Open as many Slave instances as you want and press `Enter` to connect to the default address or enter custom address and then press `Enter`:
 ![](assets/slave-connection.jpg)
 1. Click the start button in the Master application.
-1. You should see the master and slaves start working to solve the randomly generated tsp problem:
+1. You should see master and slaves start working to solve the randomly generated tsp problem:
 ![](assets/tsp-run.gif)
